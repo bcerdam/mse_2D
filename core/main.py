@@ -141,10 +141,14 @@ def mse_2D(image, scales, m, r):
         entropy_values.append(entropy)
     return np.array(entropy_values)
 
+# Para probar funciones especificas:
+
 # v = calculate_U_ij_m(image_to_array('white_noise_3.png'), 0, 0, 2, 3*np.std(image_to_array('white_noise_3.png')))
-# v = calculate_U_ij_m(image_to_array('solid-color-image.png'), 0, 0, 2, 3*np.std(image_to_array('solid-color-image.png')))
 # v = calculate_U_m(image_to_array('white_noise_3.png'), 2, 3*np.std(image_to_array('white_noise_3.png')))
-# test = mse_2D('white_noise_3.png', 10, 2, 0.25)
-# test_1 = mse_2D('solid-color_image.png', 10, 2, 0.25)
-# t = coarse_grain_image_mean(image_to_array('white_noise_2.png'), 2)
-# plot_image_as_array(test)
+
+# Para probar algoritmo en general:
+
+# white_noise_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/100x100_test/white_noise_3.png', 20, 2, 0.25)
+# color_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/100x100_test/solid-color-image.png', 20, 2, 0.25)
+# nature_fractal_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/100x100_test/nature_fractal.png', 20, 2, 0.25)
+
