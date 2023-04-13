@@ -15,7 +15,7 @@ def plot_image_as_array(image):
     plt.show()
     return image
 
-def coarse_grain_image_mean(image, scale):
+def coarse_graining_2D(image, scale):
     rows, cols = image.shape
     new_rows = rows // scale
     new_cols = cols // scale
@@ -24,11 +24,6 @@ def coarse_grain_image_mean(image, scale):
         for j in range(new_cols):
             coarse_grained[i, j] = np.mean(image[i*scale:(i+1)*scale, j*scale:(j+1)*scale])
     return coarse_grained
-
-# def d_max(image, m, i, j, a, b):
-#     u = image[i:i+m, j:j+m]
-#     v = image[a:a+m, b:b+m]
-#     return np.max(np.abs(u - v))
 
 def d_max(image, m, i, j, a, b):
     max_dist = 0
@@ -135,7 +130,7 @@ def mse_2D(image, scales, m, r):
     image_array = image_to_array(image)
     entropy_values = []
     for scale in range(1, scales+1):
-        coarse_grained = coarse_grain_image_mean(image_array, scale)
+        coarse_grained = coarse_graining_2D(image_array, scale)
         entropy = calculate_log_ratio(calculate_U_m(coarse_grained, m, r*np.std(image_array)),
                                       calculate_U_m_plus_one(coarse_grained, m, r*np.std(image_array)))
         entropy_values.append(entropy)
