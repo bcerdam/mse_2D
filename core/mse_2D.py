@@ -27,8 +27,8 @@ def coarse_graining_2D(image, scale):
 
 def d_max(image, m, i, j, a, b):
     max_dist = 0
-    for k in range(m-1):
-        for l in range(m-1):
+    for k in range(m):
+        for l in range(m):
             dist = abs(image[i+k, j+l] - image[a+k, b+l])
             if dist > max_dist:
                 max_dist = dist
@@ -50,7 +50,10 @@ def calculate_U_ij_m(image, i, j, m, r):
     H, W = image.shape
     for a in range(1, H-m):
         for b in range(1, W-m):
-            if d_max(image, m, i, j, a, b) < r:
+            max_dist = d_max(image, m, i, j, a, b)
+            if r == 0:
+                count += 0
+            elif max_dist <= r:
                 count += 1
     return count / (np.prod(image[:-m, :-m].shape) - 1)
 
@@ -71,7 +74,9 @@ def calculate_U_ij_m_plus_one(image, i, j, m, r):
     H, W = image.shape
     for a in range(1, H-m):
         for b in range(1, W-m):
-            if d_max(image, m, i, j, a, b) < r:
+            if r == 0:
+                count += 0
+            elif d_max(image, m, i, j, a, b) <= r:
                 count += 1
     return count / (np.prod(image[:-m, :-m].shape) - 1)
 
@@ -122,6 +127,7 @@ def calculate_log_ratio(Um, Umplus1):
         return 0
     else:
         U_ratio = Umplus1 / Um
+        print("U RATIO: ", U_ratio)
         log_ratio = -np.log(U_ratio)
         return log_ratio
 
@@ -129,21 +135,25 @@ def calculate_log_ratio(Um, Umplus1):
 def mse_2D(image, scales, m, r):
     image_array = image_to_array(image)
     entropy_values = []
+    r_parameter = r * np.std(image_array)
     for scale in range(1, scales+1):
         coarse_grained = coarse_graining_2D(image_array, scale)
-        entropy = calculate_log_ratio(calculate_U_m(coarse_grained, m, r*np.std(image_array)),
-                                      calculate_U_m_plus_one(coarse_grained, m, r*np.std(image_array)))
+        entropy = calculate_log_ratio(calculate_U_m(coarse_grained, m, r_parameter), calculate_U_m_plus_one(coarse_grained, m, r_parameter))
         entropy_values.append(entropy)
     return np.array(entropy_values)
 
 # Para probar funciones especificas:
 
-# v = calculate_U_ij_m(image_to_array('white_noise_3.png'), 0, 0, 2, 3*np.std(image_to_array('white_noise_3.png')))
+# v = calculate_U_ij_m(image_to_array('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png'), 0, 0, 2, 3*np.std(image_to_array('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png')))
+# v_1 = calculate_U_ij_m_plus_one(image_to_array('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png'), 0, 0, 2, 3*np.std(image_to_array('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png')))
+
 # v = calculate_U_m(image_to_array('white_noise_3.png'), 2, 3*np.std(image_to_array('white_noise_3.png')))
 
 # Para probar algoritmo en general:
 
-# white_noise_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/100x100_test/white_noise_3.png', 20, 2, 0.25)
+# white_noise_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png', 20, 2, 0.25)
 # color_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/100x100_test/solid-color-image.png', 20, 2, 0.25)
-# nature_fractal_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/100x100_test/nature_fractal.png', 20, 2, 0.25)
+# nature_fractal_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/nature_fractal.png', 20, 2, 0.25)
+# pink_noise_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/pink_noise.png', 20, 2, 0.25)
+
 
