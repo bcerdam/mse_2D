@@ -214,21 +214,21 @@ def mse_3D(path_imagenes, scales, m, r):
 #####
 
 start_time = time.time()
-p_n_2_0750 = mse_3D('/home/bcm/Desktop/Repo/mse_2D/datos/3D/pink_noise_frames_10x10', 20, 2, 7.5)
+p_n_1_0750 = mse_3D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/3D/pink_noise_frames_10x10', 20, 1, 7.5)
 end_time = time.time()
-execution_time_p_n_2_0750 = end_time - start_time
+execution_time_p_n_1_0750 = end_time - start_time
 
 #####
 
 start_time = time.time()
-w_n_2_0750 = mse_3D('/home/bcm/Desktop/Repo/mse_2D/datos/3D/white_noise_frames_10x10', 20, 2, 7.5)
+w_n_1_0750 = mse_3D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/3D/white_noise_frames_10x10', 20, 1, 7.5)
 end_time = time.time()
-execution_time_w_n_2_0750 = end_time - start_time
+execution_time_w_n_1_0750 = end_time - start_time
 
 #####
 
 start_time = time.time()
-c_2_0750 = mse_3D('/home/bcm/Desktop/Repo/mse_2D/datos/3D/cte_color_frames_10x10', 20, 2, 7.5)
+c_1_0750 = mse_3D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/3D/cte_color_frames_10x10', 20, 1, 7.5)
 end_time = time.time()
-execution_time_c_2_0750 = end_time - start_time
+execution_time_c_1_0750 = end_time - start_time
 
