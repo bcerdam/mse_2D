@@ -198,37 +198,26 @@ def mse_3D(path_imagenes, scales, m, r):
     return np.array(entropy_values)
 
 
-
-# o = coarse_graining_Z('/home/bcm/Desktop/Repo/mse_2D/datos/3D/white_noise_frames_10x10', 1)
-# v = coarse_graining_Z('/home/bcm/Desktop/Repo/mse_2D/datos/3D/white_noise_frames_10x10', 10)
-# Image.fromarray(v[0]).show()
-# r = 7.5*np.std(np.mean(np.array(o), axis=0))
-# z = calculate_U_ijz_m(o, 0, 0, 0, 2, r)
-# z_one = calculate_U_ijz_m_plus_one(v, 0, 0, 0, 2, r)
-# ratio = z_one / z
-
-#z_m = calculate_U_m(v, 2, 0.25*np.std(np.mean(np.array(v), axis=0)))
-# z_m_one = calculate_U_m_plus_one(v, 2, 0.25*np.std(np.mean(np.array(v), axis=0)))
-
+# Pruebas 100 frames, 10x10 cada una (datos -> 3D)
 
 #####
 
-start_time = time.time()
-p_n_1_0750 = mse_3D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/3D/pink_noise_frames_10x10', 20, 1, 7.5)
-end_time = time.time()
-execution_time_p_n_1_0750 = end_time - start_time
-
-#####
-
-start_time = time.time()
-w_n_1_0750 = mse_3D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/3D/white_noise_frames_10x10', 20, 1, 7.5)
-end_time = time.time()
-execution_time_w_n_1_0750 = end_time - start_time
-
-#####
-
-start_time = time.time()
-c_1_0750 = mse_3D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/3D/cte_color_frames_10x10', 20, 1, 7.5)
-end_time = time.time()
-execution_time_c_1_0750 = end_time - start_time
+# start_time = time.time()
+# p_n_1_0750 = mse_3D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/3D/pink_noise_frames_10x10', 20, 1, 7.5)
+# end_time = time.time()
+# execution_time_p_n_1_0750 = end_time - start_time
+#
+# #####
+#
+# start_time = time.time()
+# w_n_1_0750 = mse_3D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/3D/white_noise_frames_10x10', 20, 1, 7.5)
+# end_time = time.time()
+# execution_time_w_n_1_0750 = end_time - start_time
+#
+# #####
+#
+# start_time = time.time()
+# c_1_0750 = mse_3D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/3D/cte_color_frames_10x10', 20, 1, 7.5)
+# end_time = time.time()
+# execution_time_c_1_0750 = end_time - start_time
 
