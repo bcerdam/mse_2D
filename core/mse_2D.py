@@ -1,9 +1,25 @@
 import numpy as np
-import seaborn as sns
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cdist
+import seaborn as sns
+import time
+import os
+
+def read_images_as_numpy(folder_path, f):
+    images = []
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.png') or filename.endswith('.jpg') or filename.endswith('.jpeg'):
+            image_path = os.path.join(folder_path, filename)
+            with Image.open(image_path) as img:
+                gray_img = img.convert('L')  # convert to grayscale
+                np_img = np.asarray(gray_img)
+                if f == True:
+                    images.append((np_img, filename))
+                else:
+                    images.append(np_img)
+    return images
 
 def image_to_array(image_path):
     img = Image.open(image_path).convert('L')
@@ -48,14 +64,14 @@ def calculate_U_ij_m(image, i, j, m, r):
     '''
     count = 0
     H, W = image.shape
-    for a in range(1, H-m):
-        for b in range(1, W-m):
-            max_dist = d_max(image, m, i, j, a, b)
-            if r == 0:
-                count += 0
-            elif max_dist <= r:
+    N_m = (H - m) * (W - m)
+    for a in range(H - m):
+        for b in range(W - m):
+            if a == i and b == j:
+                continue
+            if d_max(image, m, i, j, a, b) <= r:
                 count += 1
-    return count / (np.prod(image[:-m, :-m].shape) - 1)
+    return count / (N_m-1)
 
 def calculate_U_ij_m_plus_one(image, i, j, m, r):
     '''
@@ -69,16 +85,16 @@ def calculate_U_ij_m_plus_one(image, i, j, m, r):
     :param r: tolerancia de distancia
     :return: devuelve valor de probabilidad U_ij_m_plus_one
     '''
-    m += 1
     count = 0
     H, W = image.shape
-    for a in range(1, H-m):
-        for b in range(1, W-m):
-            if r == 0:
-                count += 0
-            elif d_max(image, m, i, j, a, b) <= r:
+    N_m = (H - m) * (W - m)
+    for a in range(H - m):
+        for b in range(W - m):
+            if a == i and b == j:
+                continue
+            if d_max(image, m, i, j, a, b) <= r:
                 count += 1
-    return count / (np.prod(image[:-m, :-m].shape) - 1)
+    return count / (N_m-1)
 
 def calculate_U_m(image, m, r):
     """
@@ -88,12 +104,10 @@ def calculate_U_m(image, m, r):
     :param r: tolerancia de distancia
     :return: devuelve promedio de todos los U_ij_m.
     """
-    print("Calculating U_m: ")
     H, W = image.shape
     U_m = np.zeros((H-m, W-m))
     N_m = (H - m) * (W - m)
     for i in range(H - m):
-        print(f"U_m row number: {i}")
         for j in range(W - m):
             U_m[i, j] = calculate_U_ij_m(image, i, j, m, r)
     return np.sum(U_m) / N_m
@@ -106,15 +120,14 @@ def calculate_U_m_plus_one(image, m, r):
     :param r: tolerancia de distancia
     :return: devuelve promedio de todos los U_ij_m_plus_one.
     """
-    print("Calculating U_m_plus_one: ")
+    m += 1
     H, W = image.shape
-    U_m = np.zeros((H-m, W-m))
+    U_m_plus_one = np.zeros((H-m, W-m))
     N_m = (H - m) * (W - m)
     for i in range(H - m):
-        print(f"U_m_plus_one row number: {i}")
         for j in range(W - m):
-            U_m[i, j] = calculate_U_ij_m_plus_one(image, i, j, m, r)
-    return np.sum(U_m) / N_m
+            U_m_plus_one[i, j] = calculate_U_ij_m_plus_one(image, i, j, m, r)
+    return np.sum(U_m_plus_one) / N_m
 
 def calculate_log_ratio(Um, Umplus1):
     """
@@ -127,7 +140,6 @@ def calculate_log_ratio(Um, Umplus1):
         return 0
     else:
         U_ratio = Umplus1 / Um
-        print("U RATIO: ", U_ratio)
         log_ratio = -np.log(U_ratio)
         return log_ratio
 
@@ -135,25 +147,43 @@ def calculate_log_ratio(Um, Umplus1):
 def mse_2D(image, scales, m, r):
     image_array = image_to_array(image)
     entropy_values = []
-    r_parameter = r * np.std(image_array)
+    pixel_values = []
+    for row in image_array:
+        for value in row:
+            if value not in pixel_values:
+                pixel_values.append(value)
+
+    r_parameter = r * np.std(pixel_values)
     for scale in range(1, scales+1):
+        print(f"Scale: {scale}")
         coarse_grained = coarse_graining_2D(image_array, scale)
-        entropy = calculate_log_ratio(calculate_U_m(coarse_grained, m, r_parameter), calculate_U_m_plus_one(coarse_grained, m, r_parameter))
+        entropy = calculate_log_ratio(calculate_U_m(coarse_grained, m, r_parameter),
+                                      calculate_U_m_plus_one(coarse_grained, m, r_parameter))
         entropy_values.append(entropy)
     return np.array(entropy_values)
 
-# Para probar funciones especificas:
-
-# v = calculate_U_ij_m(image_to_array('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png'), 0, 0, 2, 3*np.std(image_to_array('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png')))
-# v_1 = calculate_U_ij_m_plus_one(image_to_array('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png'), 0, 0, 2, 3*np.std(image_to_array('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png')))
-
-# v = calculate_U_m(image_to_array('white_noise_3.png'), 2, 3*np.std(image_to_array('white_noise_3.png')))
+def parallel_mse_2D(image, scale, m, r):
+    print(scale)
+    pixel_values = []
+    for row in image:
+        for value in row:
+            if value not in pixel_values:
+                pixel_values.append(value)
+    r_parameter = r * np.std(pixel_values)
+    coarse_grained = coarse_graining_2D(image, scale)
+    entropy = calculate_log_ratio(calculate_U_m(coarse_grained, m, r_parameter),
+                                  calculate_U_m_plus_one(coarse_grained, m, r_parameter))
+    return entropy
 
 # Para probar algoritmo en general:
 
-# white_noise_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/white_noise_3.png', 20, 2, 0.25)
-# color_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/100x100_test/solid-color-image.png', 20, 2, 0.25)
-# nature_fractal_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/nature_fractal.png', 20, 2, 0.25)
-# pink_noise_image = mse_2D('/home/bcm/Desktop/Repo/mse_2D/datos/2D/100x100_test/pink_noise.png', 20, 2, 0.25)
+# print('Bee Hive Image')
+#
+# start_time = time.time()
+# b_2_025 = mse_2D('/Users/brunocerdamardini/Desktop/repo/mse_2D/datos/2D/100x100_test/bee_hive.jpg', 20, 2, 0.25)
+# end_time = time.time()
+# execution_time_b_2_025 = end_time - start_time
+
+
 
 
